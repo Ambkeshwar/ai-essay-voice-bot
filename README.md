@@ -18,8 +18,7 @@ An AI-powered FastAPI application that converts voice input into text, asks inte
 
 ## 🏗️ Project Structure
 
-```
-
+```text
 ai-essay-voice-bot/
 │
 ├── app/
@@ -38,7 +37,6 @@ ai-essay-voice-bot/
 ├── requirements.txt
 ├── .env                          # (Not committed)
 └── README.md
-
 ```
 
 ---
