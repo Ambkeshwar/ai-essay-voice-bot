@@ -165,6 +165,93 @@ Server will start at:
 
 ---
 
+## 🎨 Streamlit UI (Frontend)
+
+This project includes a Streamlit-based UI for interacting with the FastAPI backend.
+
+---
+
+## ▶️ Running the Application
+
+This application has two parts:
+1. FastAPI Backend
+2. Streamlit Frontend
+
+---
+
+### 1️⃣ Start FastAPI Server
+
+```bash
+python app.py
+```
+
+Backend will run at:
+```
+http://localhost:5000
+```
+
+---
+
+### 2️⃣ Start Streamlit UI (in a new terminal)
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Frontend will run at:
+```
+http://localhost:8501
+```
+
+---
+
+## ⚠️ Important Notes
+
+- Make sure FastAPI is running before starting Streamlit  
+- Ensure the API URL in `streamlit_app.py` is:
+
+```python
+API_URL = "http://127.0.0.1:5000"
+```
+
+- Use correct endpoints:
+  - `/voice-input`
+  - `/generate-essay`
+
+---
+
+## 🚀 Optional: Run Both Together
+
+You can create a helper script `run_all.py`:
+
+```python
+import subprocess
+
+subprocess.Popen(["python", "app.py"])
+subprocess.Popen(["streamlit", "run", "streamlit_app.py"])
+
+input("Press ENTER to stop...")
+```
+
+Run it using:
+
+```bash
+python run_all.py
+```
+
+---
+
+## 🧪 How It Works
+
+1. Upload audio via Streamlit UI  
+2. Audio is sent to FastAPI `/voice-input/`  
+3. AI generates transcription + follow-up question  
+4. Conversation is maintained in memory  
+5. Click **Generate Essay** to call `/generate-essay/`  
+6. Structured essay is displayed on the UI  
+
+
+
 ## ⚠️ Common Issues
 
 ### ❌ 307 Redirect
