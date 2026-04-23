@@ -9,29 +9,55 @@ st.set_page_config(layout="wide", page_title="AI Voice Essay Brainstormer")
 st.title("🎙️ AI Voice Essay Brainstormer")
 st.caption("Speak your thoughts. Get intelligent questions. Build your essay.")
 
+# ------------------ SESSION INIT ------------------
+if "chat" not in st.session_state:
+    st.session_state.chat = []
+
+if "last_text" not in st.session_state:
+    st.session_state.last_text = None
+
 # ------------------ LAYOUT ------------------
 col1, col2 = st.columns([2, 1])
 
 # ------------------ LEFT PANEL ------------------
 with col1:
-    st.subheader("🎤 Voice Input")
+    st.subheader("🎤 Voice + Text Input")
 
     uploaded_file = st.file_uploader(
         "Upload audio file",
         type=["wav", "mp3", "m4a", "webm"]
     )
 
-    if st.button("Send Audio"):
-        if uploaded_file:
-            files = {"file": uploaded_file}
-            response = requests.post(f"{API_URL}/voice-input", files=files)
+    # -------- AUDIO BUTTON --------
+    if st.button("Send Audio / Combine"):
+        if not uploaded_file and not st.session_state.last_text:
+            st.warning("Please provide audio or text input")
+        else:
+            files = {}
+            data = {}
+
+            # Attach file if available
+            if uploaded_file:
+                files["file"] = uploaded_file
+
+            # Attach text if available
+            if st.session_state.last_text:
+                data["text"] = st.session_state.last_text
+
+            response = requests.post(
+                f"{API_URL}/voice-input",
+                files=files if files else None,
+                data=data if data else None
+            )
 
             if response.status_code == 200:
-                data = response.json()
+                res = response.json()
 
-                st.session_state.setdefault("chat", [])
-                st.session_state.chat.append(("user", data["user_text"]))
-                st.session_state.chat.append(("ai", data["ai_question"]))
+                st.session_state.chat.append(("user", res["user_text"]))
+                st.session_state.chat.append(("ai", res["ai_question"]))
+
+                # Clear last text after sending
+                st.session_state.last_text = None
 
             else:
                 st.error("API Error")
@@ -40,9 +66,6 @@ with col1:
 
     # ------------------ CHAT ------------------
     st.subheader("💬 Conversation")
-
-    if "chat" not in st.session_state:
-        st.session_state.chat = []
 
     for role, msg in st.session_state.chat:
         if role == "user":
@@ -54,16 +77,19 @@ with col1:
     user_input = st.chat_input("Type your response here...")
 
     if user_input:
+        st.session_state.last_text = user_input
         st.session_state.chat.append(("user", user_input))
 
         response = requests.post(
             f"{API_URL}/voice-input",
-            files={"file": ("text.txt", user_input.encode())}
+            data={"text": user_input}
         )
 
         if response.status_code == 200:
-            data = response.json()
-            st.session_state.chat.append(("ai", data["ai_question"]))
+            res = response.json()
+            st.session_state.chat.append(("ai", res["ai_question"]))
+        else:
+            st.error("API Error")
 
         st.rerun()
 
